@@ -221,11 +221,10 @@ export class BoxSelectDevice implements DesktopDevice {
 
   async sendMessage(text: string): Promise<void> {
     if (!this.regions) throw new Error('尚未保存框选区域')
+    // 框选路线：用户已经精确指定了输入框矩形，直接点几何中心，
+    // 不再加 jitter——VLM 路线的"模拟人类"抖动在这里只会偏离用户的本意。
     const [x, y] = rectCenter(this.regions.inputBox)
-    // 给中心点加一点点抖动，模拟人类
-    const jitterX = x + (Math.random() - 0.5) * 6
-    const jitterY = y + (Math.random() - 0.5) * 4
-    const ok = await sendReplyByCoordsAction(jitterX, jitterY, text)
+    const ok = await sendReplyByCoordsAction(x, y, text)
     if (!ok) throw new Error('发送消息失败')
   }
 
